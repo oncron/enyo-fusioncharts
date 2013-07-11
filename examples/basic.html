@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+	<title>Enyo FusionCharts - Basic Example</title>
+	<script src="http://enyojs.com/enyo-2.2.0/enyo/enyo.js" type="text/javascript"></script>
+	<script src="FusionCharts/FusionCharts.js" type="text/javascript"></script>
+<!--	<script src="FusionCharts/jquery.min.js" type="text/javascript"></script>-->
+	<script src="../source/fusionCharts.js" type="text/javascript"></script>
+</head>
+<body>
+	<script>
+		new enyo.kind({
+			name: "App",
+			kind: "Control",
+			components: [
+              {kind: "Scroller", fit: true, components: [
+                {
+                  name: "chartTraffic",
+                  kind: "oncron.FusionCharts",
+                  chartType: "Column3D",
+                  style: "width:400px;height:300px;",
+                  onChartEvent: "myChartEvent",
+                  // Register for the DrawComplete event
+                  chartEvents: ["DrawComplete"],
+                  additionalOptions: {
+                    id: "myTrafficChart"
+                  }
+                },  {
+				  name: "eventDisplay"
+                }, {
+                  name: "chartHits",
+                  kind: "oncron.FusionCharts",
+                  chartType: "Area2D",
+                  style: "width:400px;height:300px;"
+                }, {
+				  kind: "enyo.Button",
+				  name: "destroyButton",
+				  content: "Destroy chart",
+				  ontap: "destroyHitChart"
+                }
+              ]}
+			],
+		  rendered: function() {
+			this.inherited(arguments);
+
+			this.generateRandomChartData(this.$.chartTraffic);
+
+			this.$.chartHits.setJsonData({
+			  chart: {
+				caption: "Weekly Hits",
+				xAxisName: "Week",
+				yAxisName: "Hits",
+				// Having problems with transparency (bgAlpha)
+				// Container seems to have a background of white that
+				// I can't find where to override
+				// I would think it would be in the constructor but that
+				// didn't work
+				bgColor: "#EAEAEA"
+			  },
+			  data: [
+				{label: "Week 1", value: Math.floor((Math.random()*25000))},
+				{label: "Week 2", value: Math.floor((Math.random()*25000))},
+				{label: "Week 3", value: Math.floor((Math.random()*25000))},
+				{label: "Week 4", value: Math.floor((Math.random()*25000))}
+			  ]
+			});
+
+
+			// Set up a timer to show random data every 3 seconds
+			this.jobTraffic = window.setInterval(enyo.bind(this, "generateRandomChartData"), 3000, this.$.chartTraffic)
+
+			// Set up a timer to destroy the second chart after 20 seconds
+			this.job2 = window.setTimeout(enyo.bind(this, "destroyHitChart"), 20000)
+
+		  },
+		  generateRandomChartData: function(inChart) {
+			inChart.setJsonData({
+			  chart: {
+				caption: "Weekly Traffic Report",
+				xAxisName: "Week",
+				yAxisName: "Traffic",
+				numberSuffix: "Kbps",
+				// Having problems with transparency (bgAlpha)
+				// Container seems to have a background of white that
+				// I can't find where to override
+				// I would think it would be in the constructor but that
+				// didn't work
+				bgColor: "#EAEAEA"
+			  },
+			  data: [
+				{label: "Week 1", value: Math.floor((Math.random()*25000))},
+				{label: "Week 2", value: Math.floor((Math.random()*25000))},
+				{label: "Week 3", value: Math.floor((Math.random()*25000))},
+				{label: "Week 4", value: Math.floor((Math.random()*25000))}
+			  ]
+			});
+		  },
+		  destroyHitChart: function() {
+			if (this.$.chartHits) {
+			  this.$.chartHits.destroy();
+			  this.$.destroyButton.destroy();
+			}
+		  },
+		  myChartEvent: function(inSender, inEvent) {
+			this.$.eventDisplay.setContent(Date.now() + " Chart event: chart=" + inEvent.eventObject.sender.id + " event=" + inEvent.eventObject.eventType);
+		  }
+
+		});
+		var a = new App().renderInto(document.body);
+	</script>
+</body>
+</html>
+

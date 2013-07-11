@@ -118,7 +118,7 @@ enyo.kind({
     // If additional options are provided, mutate chartOptions
     // with any additionalOptions overriding defaults
     if (this.additionalOptions) {
-      chartOptions = $.extend({}, chartOptions, this.additionalOptions)
+      enyo.mixin(chartOptions, this.additionalOptions);
     }
 
     this.fusionChart = new FusionCharts(chartOptions);
