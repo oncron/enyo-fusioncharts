@@ -15,6 +15,8 @@ Currently the control only wraps the JavaScript version of FusionCharts. Support
 ## Example
 An example is provided in the Examples directory. Because the FusionCharts library and support files are required, the example is not fully functioning as is. To test you will need to clone the repository and drop FusionCharts into place.
 
+To drop the FusionCharts directory into place, copy the "Charts" (containing FusionCharts.js) from your FusionCharts distribution, into the examples directory.
+
 ## License
 Copyright 2013 OnCron Engineering, Inc.
 
