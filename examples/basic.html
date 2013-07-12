@@ -68,9 +68,6 @@
 			// Set up a timer to show random data every 3 seconds
 			this.jobTraffic = window.setInterval(enyo.bind(this, "generateRandomChartData"), 3000, this.$.chartTraffic)
 
-			// Set up a timer to destroy the second chart after 20 seconds
-			this.job2 = window.setTimeout(enyo.bind(this, "destroyHitChart"), 20000)
-
 		  },
 		  generateRandomChartData: function(inChart) {
 			inChart.setJsonData({
