@@ -1,109 +1,135 @@
 <!doctype html>
 <html>
 <head>
-	<title>Enyo FusionCharts - Basic Example</title>
-	<script src="http://enyojs.com/enyo-2.2.0/enyo/enyo.js" type="text/javascript"></script>
-	<script src="Charts/FusionCharts.js" type="text/javascript"></script>
-	<script src="../source/fusionCharts.js" type="text/javascript"></script>
+  <title>Enyo FusionCharts - Basic Example</title>
+  <script src="http://enyojs.com/enyo-2.2.0/enyo/enyo.js" type="text/javascript"></script>
+  <script src="Charts/FusionCharts.js" type="text/javascript"></script>
+<script src="../source/fusionCharts.js" type="text/javascript"></script>
 </head>
-<body>
-	<script>
-		new enyo.kind({
-			name: "App",
-			kind: "Control",
-			components: [
-              {kind: "Scroller", fit: true, components: [
-                {
-                  name: "chartTraffic",
-                  kind: "oncron.FusionCharts",
-                  chartType: "Column3D",
-                  style: "width:400px;height:300px;",
-                  onChartEvent: "myChartEvent",
-                  // Register for the DrawComplete event
-                  chartEvents: ["DrawComplete"],
-                  additionalOptions: {
-                    id: "myTrafficChart"
-                  }
-                },  {
-				  name: "eventDisplay"
-                }, {
-                  name: "chartHits",
-                  kind: "oncron.FusionCharts",
-                  chartType: "Area2D",
-                  style: "width:400px;height:300px;"
-                }, {
-				  kind: "enyo.Button",
-				  name: "destroyButton",
-				  content: "Destroy chart",
-				  ontap: "destroyHitChart"
-                }
-              ]}
-			],
-		  rendered: function() {
-			this.inherited(arguments);
+<body bgcolor="#EAEAEA">
+<script>
+  new enyo.kind({
+    name: "App",
+    kind: "Control",
+    components: [{
+      name: "mainScroller", kind: "Scroller", classes: "enyo-fit", components: [{
+        name: "chartTraffic",
+        kind: "oncron.FusionCharts",
+        chartType: "Column3D",
+        style: "width:400px;height:300px;",
+        onChartEvent: "myChartEvent",
+        // Register for the DrawComplete event
+        chartEvents: ["DrawComplete"],
+        additionalOptions: {
+        id: "myTrafficChart"
+        }
+      },  {
+        name: "eventDisplay"
+      }, {
+        name: "chartHits",
+        kind: "oncron.FusionCharts",
+        chartType: "Area2D",
+        style: "width:400px;height:300px;"
+      }, {
+        kind: "enyo.Button",
+        name: "destroyButton",
+        content: "Destroy chart",
+        ontap: "destroyHitChart"
+      }]
+    }],
+    rendered: function() {
+      this.inherited(arguments);
 
-			this.generateRandomChartData(this.$.chartTraffic);
+    // Fill out our top "traffic" chart using this random chart creator
+    this.generateRandomChartData(this.$.chartTraffic);
 
-			this.$.chartHits.setJsonData({
-			  chart: {
-				caption: "Weekly Hits",
-				xAxisName: "Week",
-				yAxisName: "Hits",
-				// Having problems with transparency (bgAlpha)
-				// Container seems to have a background of white that
-				// I can't find where to override
-				// I would think it would be in the constructor but that
-				// didn't work
-				bgColor: "#EAEAEA"
-			  },
-			  data: [
-				{label: "Week 1", value: Math.floor((Math.random()*25000))},
-				{label: "Week 2", value: Math.floor((Math.random()*25000))},
-				{label: "Week 3", value: Math.floor((Math.random()*25000))},
-				{label: "Week 4", value: Math.floor((Math.random()*25000))}
-			  ]
-			});
+    // Set up a timer to show random data in this chart every 3 seconds
+    this.jobTraffic = window.setInterval(enyo.bind(this, "generateRandomChartData"), 3000, this.$.chartTraffic)
 
+    // Fill out a second "hits" chart that we will use to demo destruction
+    var chartData = {
+      chart: {
+        caption: "Weekly Hits",
+        xAxisName: "Week",
+        yAxisName: "Hits",
+        bgColor: "#EAEAEA"
+      },
+      data: [
+        {label: "Week 1", value: Math.floor((Math.random()*25000))},
+        {label: "Week 2", value: Math.floor((Math.random()*25000))},
+        {label: "Week 3", value: Math.floor((Math.random()*25000))},
+        {label: "Week 4", value: Math.floor((Math.random()*25000))}
+      ]
+    };
 
-			// Set up a timer to show random data every 3 seconds
-			this.jobTraffic = window.setInterval(enyo.bind(this, "generateRandomChartData"), 3000, this.$.chartTraffic)
+    this.$.chartHits.setChartData(chartData, "json");
 
-		  },
-		  generateRandomChartData: function(inChart) {
-			inChart.setJsonData({
-			  chart: {
-				caption: "Weekly Traffic Report",
-				xAxisName: "Week",
-				yAxisName: "Traffic",
-				numberSuffix: "Kbps",
-				// Having problems with transparency (bgAlpha)
-				// Container seems to have a background of white that
-				// I can't find where to override
-				// I would think it would be in the constructor but that
-				// didn't work
-				bgColor: "#EAEAEA"
-			  },
-			  data: [
-				{label: "Week 1", value: Math.floor((Math.random()*25000))},
-				{label: "Week 2", value: Math.floor((Math.random()*25000))},
-				{label: "Week 3", value: Math.floor((Math.random()*25000))},
-				{label: "Week 4", value: Math.floor((Math.random()*25000))}
-			  ]
-			});
-		  },
-		  destroyHitChart: function() {
-			if (this.$.chartHits) {
-			  this.$.chartHits.destroy();
-			  this.$.destroyButton.destroy();
-			}
-		  },
-		  myChartEvent: function(inSender, inEvent) {
-			this.$.eventDisplay.setContent(Date.now() + " Chart event: chart=" + inEvent.eventObject.sender.id + " event=" + inEvent.eventObject.eventType);
-		  }
+    // Create a third "errors" chart dynamically
+    // To borrow FusionChart's terminology, use compact rendering
+    // To pass all of the data in when the chart is created, instead
+    // of creating the chart and then calling setChartData()
+    // Use the dataSource and dataFormat properties
+    chartData = {
+      chart: {
+        caption: "Weekly Errors",
+        xAxisName: "Week",
+        yAxisName: "Errors",
+        bgColor: "#EAEAEA"
+        },
+        data: [
+        {label: "Week 1", value: Math.floor((Math.random()*25000))},
+        {label: "Week 2", value: Math.floor((Math.random()*25000))},
+        {label: "Week 3", value: Math.floor((Math.random()*25000))},
+        {label: "Week 4", value: Math.floor((Math.random()*25000))}
+      ]
+    };
 
-		});
-		var a = new App().renderInto(document.body);
-	</script>
+    this.createComponent({
+      name: "chartErrors",
+      kind: "oncron.FusionCharts",
+      container: this.$.mainScroller,
+      chartType: "Area2D",
+      style: "width:400px;height:300px;",
+      dataSource: chartData,
+      dataFormat: "json"
+    });
+    this.$.chartErrors.render();
+
+    // Call the FusionCharts API passthrough on the error chart
+    this.$.chartErrors.callFusionChartsApi("setChartAttribute", "caption", "Errors!");
+
+    },
+    generateRandomChartData: function(inChart) {
+      var chartData = {
+        chart: {
+          caption: "Weekly Traffic Report",
+          xAxisName: "Week",
+          yAxisName: "Traffic",
+          numberSuffix: "Kbps",
+          bgColor: "#EAEAEA"
+        },
+        data: [
+          {label: "Week 1", value: Math.floor((Math.random()*25000))},
+          {label: "Week 2", value: Math.floor((Math.random()*25000))},
+          {label: "Week 3", value: Math.floor((Math.random()*25000))},
+          {label: "Week 4", value: Math.floor((Math.random()*25000))}
+        ]
+      };
+      inChart.setChartData(chartData, "json");
+    },
+    destroyHitChart: function() {
+      if (this.$.chartHits) {
+        this.$.chartHits.destroy();
+        this.$.destroyButton.destroy();
+      }
+    },
+    myChartEvent: function(inSender, inEvent) {
+      this.$.eventDisplay.setContent(Date.now() + " Chart event: chart=" + inEvent.eventObject.sender.id + " event=" + inEvent.eventObject.eventType);
+    }
+
+  });
+  var a = new App().renderInto(document.body);
+</script>
 </body>
 </html>
 
