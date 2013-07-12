@@ -1,5 +1,5 @@
 /**************************************************************
-  Enyo control for FusionCharts v1.0 
+  Enyo control for FusionCharts v1.0.0
 
   Copyright 2013 OnCron Engineering, Inc.
 
