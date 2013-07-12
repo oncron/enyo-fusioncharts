@@ -39,19 +39,14 @@ enyo.kind({
     // Currently flash charts are not implemented
     enableFlash: false,
 
-    // Provide one and only one of the following
-    // New data or URLs can be pushed to the chart
-    // by way of setting the published property
-    // (e.g. setJsonData)
-    jsonUrl: null,
-    jsonData: null,
-    xmlUrl: null,
-    xmlData: null,
-
     // Chart size, can be in pixels (do not append px) or percent
     // For dynamic resize you must specify in percent
     width: "100%",
     height: "100%",
+
+    // Automatically render on init
+    // If set to false, call renderChart() when ready
+    autoRender: true,
 
     // Additional options to be passed to FusionCharts constructor
     // For example, you may pass in a custom 'id' to specify
@@ -67,7 +62,12 @@ enyo.kind({
     // we are tying the event to the control which has already been created
     // by the time we register for events, and similarly we deregister
     // before destroying
-    chartEvents: null
+    chartEvents: null,
+
+    // Use these published properties only to pass data in on
+    // initialization. For runtime updates, use the setChartData() function
+    dataSource: null,
+    dataFormat: null   
 
   },
   events: {
@@ -78,6 +78,42 @@ enyo.kind({
   components: [
   ],
   fusionChart: null,
+
+  // Call to set the chart data
+  // Mirrors the FusionCharts setChartData function
+  // Use this instead of published properties because we
+  // need to triger this function even if the value doesn't change
+  // (to reload chart data from a URL, for example)
+  // Also, because of issues with using an object for a property
+  // noted on the Enyo Published Properties Wiki page, this is
+  // the best implementation
+  setChartData: function(inData, inFormat) {
+    // Perform basic verification on format
+    if (typeof inData !== "undefined" &&
+        (inFormat === "xml" || 
+         inFormat === "json" || 
+         inFormat === "xmlurl" || 
+         inFormat === "jsonurl")
+        ) {
+      this.dataSource = inData;
+      this.dataFormat = inFormat;
+      this.fillChart();
+    } else {
+      throw("Invalid chart data or format");
+    }
+  },
+  // Call the FusionCharts API on the chart
+  // For example, to call chart.setTransparent(true)
+  // call callFusionChartsApi("setTransparent", true)
+  callFusionChartsApi: function() {
+    // Make a real array out of the arguments for easier manipulation
+    var args = Array.prototype.slice.call(arguments);
+    var apiCall = args.shift();
+
+    if (this.fusionChart && apiCall) {
+      return this.fusionChart[apiCall].apply(this.fusionChart, args);
+    }
+  },
   //* @protected
   create: function() {
     this.inherited(arguments);
@@ -86,7 +122,9 @@ enyo.kind({
   },
   rendered: function() {
     this.inherited(arguments);
-    this.renderChart();
+    if (this.autoRender) {
+      this.renderChart();
+    }
   },
   destroy: function() {
     this.inherited(arguments);
@@ -127,30 +165,10 @@ enyo.kind({
 
   },
   // Set the data source for the chart
-  // We accept one and only one source
-  // We don't throw an error if we don't find a source
-  // We simply don't set it - that allows a user
-  // to null one source and set another to effectively
-  // re-render the data
-  // Returns true if data set
   fillChart: function() {
 
-    if (this.fusionChart) {
-
-      if (this.jsonUrl) {
-        this.fusionChart.setJSONUrl(this.jsonUrl);
-      } else if (this.jsonData) {
-        this.fusionChart.setJSONData(this.jsonData);
-      } else if (this.xmlUrl) {
-        this.fusionChart.setXMLUrl(this.xmlUrl);
-      } else if (this.xmlData) {
-        this.fusionChart.setXMLData(this.xmlData);
-      } else {
-        return false;
-      }
-
-      return true;
-
+    if (this.fusionChart && this.dataSource && this.dataFormat) {
+      this.fusionChart.setChartData(this.dataSource, this.dataFormat);
     }
 
   },
@@ -170,18 +188,6 @@ enyo.kind({
       this.fusionChart = null;
     }
   },
-  jsonUrlChanged: function(oldValue) {
-    this.fillChart();
-  },
-  jsonDataChanged: function(oldValue) {
-    this.fillChart();
-  },
-  xmlUrlChanged: function(oldValue) {
-    this.fillChart();
-  },
-  xmlDataChanged: function(oldValue) {
-    this.fillChart();
-  },
   chartEventsChanged: function(oldValue) {
 
     // Remove old event listener first
@@ -197,7 +203,7 @@ enyo.kind({
   },
   // Received a listener callback
   // Send the event on with the original object and arguments
-  // packed into the enyo event
+  // packed into the Enyo event
   chartEventListener: function(eventObject, argumentsObject) {
     this.doChartEvent({"eventObject": eventObject, "argumentsObject": argumentsObject});
   }
