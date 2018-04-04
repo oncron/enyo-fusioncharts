@@ -8,9 +8,9 @@ http://www.fusioncharts.com/ provides professional charting capabilities.
 enyo.FusionCharts provides a wrapper to present, control, and receive events from these charts.
 
 ## FusionCharts compatibility
-This control has been designed against FusionCharts XT v3.3.1 SR2
+This control has been designed against FusionCharts XT v3.12.2.
 
-Currently the control only wraps the JavaScript version of FusionCharts. Support for the Flash version of FusionCharts should be a simple addition, but has not been implemented.
+Currently the control only wraps the Flash version of FusionCharts. Support for the JavaScript version of FusionCharts is obsolete.
 
 ## Example
 An example is provided in the Examples directory. Because the FusionCharts library and support files are required, the example is not fully functioning as is. To test you will need to clone the repository and drop FusionCharts into place.
@@ -18,7 +18,7 @@ An example is provided in the Examples directory. Because the FusionCharts libra
 To drop the FusionCharts directory into place, copy the "Charts" (containing FusionCharts.js) from your FusionCharts distribution, into the examples directory.
 
 ## License
-Copyright 2013 OnCron Engineering, Inc.
+Copyright 2018 OnCron Engineering, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

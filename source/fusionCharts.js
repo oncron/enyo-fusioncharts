@@ -1,7 +1,7 @@
 /**************************************************************
-  Enyo control for FusionCharts v1.0.0
+  Enyo control for FusionCharts v1.1.0
 
-  Copyright 2013 OnCron Engineering, Inc.
+  Copyright 2018 OnCron Engineering, Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -34,10 +34,6 @@ enyo.kind({
     // http://docs.fusioncharts.com/charts/contents/Introduction/ChartList.html
     // We do not verify against a list, simply pass it on
     chartType: "",
-
-    // enable Flash charts? We'll use JS only by default
-    // Currently flash charts are not implemented
-    enableFlash: false,
 
     // Chart size, can be in pixels (do not append px) or percent
     // For dynamic resize you must specify in percent
@@ -133,12 +129,6 @@ enyo.kind({
   },
   // Create the FusionChart
   createChart: function() {
-
-    if (this.enableFlash) {
-      // Flas charts are not currently supported as correct pathing to
-      // the swf files is required
-      throw("Flash charts not currently supported");
-    }
 
     if (this.fusionChart) {
       throw("Chart already exists, please destroy existing");
